@@ -1,4 +1,6 @@
-﻿namespace JoaliBackend.models
+﻿using JoaliBackend.DTO.UserDTOs;
+
+namespace JoaliBackend.models
 {
     public class User
     {
@@ -9,6 +11,7 @@
         public string PhoneNumber { get; set; }
         public DateTime CreatedAt { get; set; } 
         public bool IsACtive { get; set; }
+        public UserType UserType { get; set; }
 
     }
 }

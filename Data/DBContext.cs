@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Joali.Models;
 using Azure.Core;
 using Azure;
 using System.Data;
