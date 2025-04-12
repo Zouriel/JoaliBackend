@@ -4,7 +4,8 @@ using Azure;
 using System.Data;
 using System.Security.Cryptography.Xml;
 using System.Text.RegularExpressions;
-using JoaliBackend.models;
+using JoaliBackend.Models;
+
 
 namespace Joali.Data
 {
@@ -14,7 +15,7 @@ namespace Joali.Data
         {
         }
         public DbSet<User> Users { get; set; }
-
+        public DbSet<Session> Sessions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
