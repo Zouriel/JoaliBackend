@@ -2,7 +2,7 @@ name: 🚀 Auto Deploy to Contabo VPS
 
 on:
   push:
-    branches: [main]  # Change this to your branch if it's not main
+    branches: [master]  # Change this to your branch if it's not main
 
 jobs:
   deploy:
