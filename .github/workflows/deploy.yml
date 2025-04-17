@@ -12,14 +12,14 @@ jobs:
     - name: 🧾 Checkout Code
       uses: actions/checkout@v3
 
-    - name: 🔐 Setup SSH
+    - name:  Setup SSH
       run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.VPS_SSH_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
         ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
-    - name: 🚚 Push Code to VPS
+    - name:  Push Code to VPS
       run: |
         git remote add live ssh://${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }}:/root/myapi.git
-        git push live main --force
+        git push live master --force
