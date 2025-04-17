@@ -1,5 +1,8 @@
 using Joali.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,10 +21,28 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllOrigins",
-        builder => builder.AllowAnyOrigin()
+        builder => builder.AllowAnyOrigin() 
                           .AllowAnyHeader()
                           .AllowAnyMethod());
 });
+builder.Services.AddAuthentication("Bearer")
+    .AddJwtBearer("Bearer", options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["JWT:Issuer"],
+            ValidAudience = builder.Configuration["JWT:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["JWT:SecretKey"])
+            )
+        };
+    });
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 

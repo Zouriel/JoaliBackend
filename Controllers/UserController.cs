@@ -134,7 +134,7 @@ namespace JoaliBackend.Controllers
                 if(APIkey != APIKEY) 
                     return Unauthorized(new { message = "API key Unauthoried" });
                 var requestingstaff = await _context.Users.FindAsync(StaffId);
-                if (requestingstaff == null || requestingstaff.UserType != UserType.Admin) 
+                if (requestingstaff == null || requestingstaff.StaffRole != StaffRole.Admin) 
                     return Unauthorized(new { message = "You are not authorized to perform this action" });
                 var user = await _context.Users.FindAsync(userId);
                 if (user == null)

@@ -28,5 +28,6 @@ namespace JoaliBackend.Models
         Manager = 1,
         Staff = 2,
     }
+    
 
 }

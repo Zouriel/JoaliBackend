@@ -17,7 +17,7 @@ namespace JoaliBackend.DTO.UserDTOs
     }
     public enum UserType
     {
-        Admin = 0,
+        
         Staff = 1,
         Customer = 2,
     }
