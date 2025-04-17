@@ -22,4 +22,5 @@ jobs:
     - name:  Push Code to VPS
       run: |
         git remote add live ssh://${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_HOST }}:/root/myapi.git
+        git fetch --unshallow  
         git push live master --force
