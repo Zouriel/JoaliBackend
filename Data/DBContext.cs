@@ -16,6 +16,7 @@ namespace Joali.Data
         }
         public DbSet<User> Users { get; set; }
         public DbSet<Session> Sessions { get; set; }
+        public DbSet<Organization> Organizations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

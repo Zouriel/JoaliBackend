@@ -11,6 +11,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.ComponentModel.DataAnnotations;
 
 namespace JoaliBackend.Controllers
 {
@@ -216,6 +217,27 @@ namespace JoaliBackend.Controllers
             catch
             {
                 return StatusCode(500, new { message = "An error occurred. Please try again later." });
+            }
+        }
+        [HttpGet("ResetPassword")]
+        public async Task<IActionResult> ResetPassword([FromQuery][EmailAddress(ErrorMessage = "Invalid email address")]string email, string  Apikey )
+        {
+            try
+            {
+                var APIKEY = _configuration["API-KEY"];
+                if(Apikey != APIKEY) return BadRequest(new { message = "Invalid API Key" });
+                var user  = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+                if(user == null ) return NotFound(new { message = "User not found" });
+                user.Password_hash = BCrypt.Net.BCrypt.HashPassword("Welcome123");
+                user.IsActive = true;
+                user.TemporaryKey = null;
+                user.TemporaryKeyExpiresAt = null;
+                _context.Users.Update(user);
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "Password reset successful" });
+            }catch(Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
         }
 
