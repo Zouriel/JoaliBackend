@@ -24,7 +24,7 @@ builder.Services.AddSwaggerGen(c =>
     // Add JWT support 🔐
     c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
     {
-        Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter 'Bearer' [space] and then your token.\r\n\r\nExample: \"Bearer abc123xyz\"",
+        Description = "JWT Authorization header using the Bearer scheme. \r\n\r\n Enter your token.\r\n\r\nExample: \"abc123xyz\"",
         Name = "Authorization",
         In = Microsoft.OpenApi.Models.ParameterLocation.Header,
         Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
@@ -89,6 +89,8 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 //app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseCors("AllowAllOrigins");
 
 app.MapControllers();
 
