@@ -105,8 +105,8 @@ namespace JoaliBackend.Controllers
                     .OrderByDescending(u => u.CreatedAt)
                     .Select(u => u.staffId)
                     .FirstOrDefaultAsync() ?? "JO0000";
-                int lastNumber = int.Parse(laststaffid.Substring(2));
-                var newstaffid = "JO" + (lastNumber + 1).ToString("D4");
+                int lastNumber = int.Parse(laststaffid.Substring(4)); // Skip "ADM-"
+                var newstaffid = "ADM-" + (lastNumber + 1).ToString("D3");
 
                 var newstaff = new User()
                 {
@@ -118,6 +118,7 @@ namespace JoaliBackend.Controllers
                     PhoneNumber = NewStaff.PhoneNumber,
                     CreatedAt = DateTime.Now,
                     staffId = newstaffid,
+                    OrgId = NewStaff.OrgId ?? null
                 };
                 await _context.Users.AddAsync(newstaff);
                 await _context.SaveChangesAsync();

@@ -9,6 +9,7 @@ namespace JoaliBackend.DTO.UserDTOs
         public string Email { get; set; }
         [Phone(ErrorMessage = "Invalid Phone Number")]
         public string PhoneNumber { get; set; }
+        public int? OrgId { get; set; }
 
     }
 }
