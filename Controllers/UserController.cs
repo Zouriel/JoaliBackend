@@ -107,6 +107,11 @@ namespace JoaliBackend.Controllers
                     .FirstOrDefaultAsync() ?? "JO0000";
                 int lastNumber = int.Parse(laststaffid.Substring(4)); // Skip "ADM-"
                 var newstaffid = "ADM-" + (lastNumber + 1).ToString("D3");
+                if (NewStaff.OrgId != null)
+                {
+                    var org = await _context.Organizations.FirstOrDefaultAsync(o => o.Id == NewStaff.OrgId);
+                    if (org == null) return BadRequest(new { message = "Organization not found" });
+                }
 
                 var newstaff = new User()
                 {
