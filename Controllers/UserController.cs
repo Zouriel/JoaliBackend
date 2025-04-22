@@ -80,7 +80,7 @@ namespace JoaliBackend.Controllers
             {
                 var APIKEY = _configuration["API-KEY"];
                 if (ApiKey != APIKEY) return BadRequest(new { message = "Invalid API Key" });
-                var users = await _context.Users.Where(u => u.IsActive == true).ToListAsync();
+                var users = await _context.Users.ToListAsync();
                 return Ok(users);
             }catch(Exception ex)
             {

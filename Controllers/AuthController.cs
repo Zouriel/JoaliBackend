@@ -12,6 +12,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.ComponentModel.DataAnnotations;
+using JoaliBackend.DTO.UserDTOs;
 
 namespace JoaliBackend.Controllers
 {
@@ -56,7 +57,7 @@ namespace JoaliBackend.Controllers
                 var os = dd.GetOs().Match?.Name ?? "Unknown";
                 var client = dd.GetClient().Match?.Name ?? "Unknown";
 
-                if (!user.IsActive)
+                if (!user.IsActive && user.UserType != UserType.Staff)
                 {
                     var code = GenerateRandomDigits(23);
                     user.TemporaryKey = code;
@@ -67,6 +68,8 @@ namespace JoaliBackend.Controllers
                     var responseData = new { email = user.Email, code = code };
                     return Ok(new { message = "RedirectToInitialPasswordPage", data = responseData });
                 }
+                if (!user.IsActive && user.UserType == UserType.Customer)
+                    return BadRequest(new { message = "UserDeactivatedPAgeRedirect" });
 
                 if (!BCrypt.Net.BCrypt.Verify(data.Password, user.Password_hash))
                     return BadRequest(new { message = "Invalid password" });
