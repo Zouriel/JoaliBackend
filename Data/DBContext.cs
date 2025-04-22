@@ -29,7 +29,7 @@ namespace Joali.Data
                 Id = 1001,
                 Name = "Admin",
                 Email = "admin@Joali.com",
-                Password_hash = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
+                Password_hash = "$2a$11$u9kvVVyl2jMsAn.NoVmaFOKNyVgkJMKCmd/j1R4OCKMt61xHHqx2m",
                 PhoneNumber = "+9601234567",
                 CreatedAt = DateTime.Parse("2025-08-01"), // Fixed: Convert string to DateTime
                 IsActive = true,
