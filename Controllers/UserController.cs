@@ -16,7 +16,7 @@ namespace JoaliBackend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    
 
     public class UserController : ControllerBase
     {
@@ -129,7 +129,7 @@ namespace JoaliBackend.Controllers
             }
 
         }
-        
+        [Authorize]
         [HttpPost("ToggleUser")]
         public async Task<IActionResult> ToggleUser([FromQuery] string APIkey, string Email)
         {
