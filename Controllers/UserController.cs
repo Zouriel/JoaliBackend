@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using BCrypt.Net;
 using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -125,28 +126,28 @@ namespace JoaliBackend.Controllers
             }
 
         }
-        [HttpPost("DisableUser")]
-        public async Task<IActionResult> DisableUser([FromQuery] string APIkey,string StaffId, string userId)
+        [HttpPost("ToggleUser")]
+        public async Task<IActionResult> ToggleUser([FromQuery] string APIkey, string userId)
         {
             try
             {
+                var staff = await _context.Users.FindAsync(HttpContext?.User?.FindFirst(ClaimTypes.Email)?.Value);
+                    if(staff == null ) return BadRequest(new {message = "Request Made By a non Existent User"});
+                    if(staff.StaffRole != StaffRole.Admin) return Unauthorized(new { message = "You are not authorized to perform this action" });
                 var APIKEY = _configuration["API-KEY"];
-                if(APIkey != APIKEY) 
-                    return Unauthorized(new { message = "API key Unauthoried" });
-                var requestingstaff = await _context.Users.FindAsync(StaffId);
-                if (requestingstaff == null || requestingstaff.StaffRole != StaffRole.Admin) 
-                    return Unauthorized(new { message = "You are not authorized to perform this action" });
+                    if (APIkey != APIKEY) return BadRequest(new { message = "Invalid API Key" });
                 var user = await _context.Users.FindAsync(userId);
-                if (user == null)
-                    return NotFound(new { message = "User Not Fount" });
-                user.IsActive = false;
-                _context.Users.Update(user);
+                    if (user == null) return BadRequest(new { message = "User not found" });
+                user.IsActive = !user.IsActive;
                 await _context.SaveChangesAsync();
-                return Ok(new { message = "User disabled successfully" });
-            }catch(Exception ex)
+                var status = user.IsActive ? "activated" : "deactivated";
+                return Ok(new { message = "User " + status + " successfully", data = user });
+            }
+            catch (Exception ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
         }
+
     }
 }

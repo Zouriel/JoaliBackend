@@ -22,11 +22,26 @@ namespace JoaliBackend.Controllers
 
         // GET: api/Organization
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Organization>>> GetOrganizations()
+        public async Task<ActionResult<IEnumerable<Organization>>> GetOrganizations([FromQuery] int? orgtype = null)
         {
-            if(!IsAdmin()) return Forbid("Only Admins can view organizations.");
-            return await _context.Organizations.ToListAsync();
+            if (!IsAdmin())
+                return Forbid("Only Admins can view organizations.");
+
+            if (orgtype.HasValue)
+            {
+                if (!Enum.IsDefined(typeof(OrgType), orgtype.Value))
+                    return BadRequest("Invalid organization type.");
+
+                var filtered = await _context.Organizations
+                                             .Where(o => o.Type == (OrgType)orgtype.Value)
+                                             .ToListAsync();
+                return Ok(filtered);
+            }
+
+            var allOrgs = await _context.Organizations.ToListAsync();
+            return Ok(allOrgs);
         }
+
 
         // GET: api/Organization/5
         [HttpGet("{id}")]
@@ -41,8 +56,10 @@ namespace JoaliBackend.Controllers
             return organization;
         }
 
-        // POST: api/Organization
-        [HttpPost]
+        // Fix the issue by correcting the property name in the OrganizationDto mapping.
+        // The property in OrganizationDto is named `orgType`, not `Type`.
+
+        [HttpPost("Create")]
         public async Task<ActionResult<Organization>> CreateOrganization([FromBody] OrganizationDto dto)
         {
             if (!IsAdmin())
@@ -60,7 +77,7 @@ namespace JoaliBackend.Controllers
                 Country = dto.Country,
                 LogoUrl = dto.LogoUrl,
                 Website = dto.Website,
-
+                Type = (OrgType)dto.orgType,
                 CreatedAt = DateTime.UtcNow
             };
 

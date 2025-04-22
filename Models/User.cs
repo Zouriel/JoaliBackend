@@ -20,6 +20,7 @@ namespace JoaliBackend.Models
         public List<Session>? ActiveSessions { get; set; }
         public string? TemporaryKey { get; set; }
         public DateTime? TemporaryKeyExpiresAt { get; set; }
+        public int? OrgId { get; set; }
 
     }
     public enum StaffRole

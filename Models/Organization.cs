@@ -26,6 +26,15 @@
         public DateTime? UpdatedAt { get; set; }
         public int? ParentOrganizationId { get; set; } // for org hierarchy
         public Organization? ParentOrganization { get; set; }
+        public OrgType Type { get; set; }
     }
-
+    public enum OrgType
+    {
+        Other = 0,
+        Hotel = 1,
+        Restaurant = 2,
+        Ferry = 3,
+        Park = 4,
+        Events = 5
+    }
 }
