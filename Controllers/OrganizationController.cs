@@ -8,9 +8,9 @@ using JoaliBackend.DTOs; // adjust if DbContext is elsewhere
 
 namespace JoaliBackend.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class OrganizationController : ControllerBase
     {
         private readonly EFCoreDbContext _context;
@@ -117,7 +117,7 @@ namespace JoaliBackend.Controllers
 
         private bool IsAdmin()
         {
-            var role = User.FindFirst(ClaimTypes.Role)?.Value;
+            var role = User.FindFirst("staffRole")?.Value; 
             return role == "Admin";
         }
     }

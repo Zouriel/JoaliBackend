@@ -28,7 +28,7 @@ namespace JoaliBackend.DTOs
 
         [Url]
         public string Website { get; set; }
-        [MaxLength(1)]
+        
         public int orgType { get; set; }
 
 
