@@ -26,27 +26,20 @@ namespace Joali.Data
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<User>().HasData(new User
             {
-
+                Id = 1001,
                 Name = "Admin",
                 Email = "admin@Joali.com",
-                Password_hash = HashPassword("Admin@123"), // Simple SHA256 hash
+                Password_hash = BCrypt.Net.BCrypt.HashPassword("Admin@123"),
                 PhoneNumber = "+9601234567",
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTime.Parse("2025-08-01"), // Fixed: Convert string to DateTime
                 IsActive = true,
                 UserType = UserType.Staff, // Assuming you have this enum value
                 StaffRole = StaffRole.Admin, // Or null if optional
                 staffId = "ADM-001",
                 OrgId = null
             });
-
-
         }
-    
-        string HashPassword(string password)
-        {
-            using var sha256 = SHA256.Create();
-            var hash = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return Convert.ToBase64String(hash);
-        }
+
+        
     }
 }

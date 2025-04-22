@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using BCrypt.Net;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -15,16 +16,18 @@ namespace JoaliBackend.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
 
-    
     public class UserController : ControllerBase
     {
         private readonly EFCoreDbContext _context;
         private readonly IConfiguration _configuration;
-        public UserController(EFCoreDbContext context, IConfiguration configuration)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public UserController(EFCoreDbContext context, IConfiguration configuration, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
         }
         [NonAction]
         public async Task<IResult> getUsers(string userid)
@@ -126,20 +129,33 @@ namespace JoaliBackend.Controllers
             }
 
         }
+        
         [HttpPost("ToggleUser")]
-        public async Task<IActionResult> ToggleUser([FromQuery] string APIkey, string userId)
+        public async Task<IActionResult> ToggleUser([FromQuery] string APIkey, string Email)
         {
             try
             {
-                var staff = await _context.Users.FindAsync(HttpContext?.User?.FindFirst(ClaimTypes.Email)?.Value);
-                    if(staff == null ) return BadRequest(new {message = "Request Made By a non Existent User"});
-                    if(staff.StaffRole != StaffRole.Admin) return Unauthorized(new { message = "You are not authorized to perform this action" });
+                var email = HttpContext.User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")?.Value;
+
+                var staff = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+
+                if (staff == null)
+                    return BadRequest(new { message = "Request Made By a non Existent User" });
+
+                if (staff.StaffRole != StaffRole.Admin)
+                    return Unauthorized(new { message = "You are not authorized to perform this action" });
+
                 var APIKEY = _configuration["API-KEY"];
-                    if (APIkey != APIKEY) return BadRequest(new { message = "Invalid API Key" });
-                var user = await _context.Users.FindAsync(userId);
-                    if (user == null) return BadRequest(new { message = "User not found" });
+                if (APIkey != APIKEY)
+                    return BadRequest(new { message = "Invalid API Key" });
+
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == Email);
+                if (user == null)
+                    return BadRequest(new { message = "User not found" });
+
                 user.IsActive = !user.IsActive;
                 await _context.SaveChangesAsync();
+
                 var status = user.IsActive ? "activated" : "deactivated";
                 return Ok(new { message = "User " + status + " successfully", data = user });
             }
@@ -148,6 +164,23 @@ namespace JoaliBackend.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+        [HttpGet("debug-token")]
+        public IActionResult DebugToken()
+        {
+            var user = _httpContextAccessor.HttpContext?.User;
+
+            if (user == null || !user.Identity?.IsAuthenticated == true)
+                return Unauthorized("🚫 Not authenticated or no token provided.");
+
+            var claims = user.Claims.Select(c => new { c.Type, c.Value }).ToList();
+            return Ok(new
+            {
+                IsAuthenticated = user.Identity.IsAuthenticated,
+                Name = user.Identity.Name,
+                Claims = claims
+            });
+        }
+
 
     }
 }

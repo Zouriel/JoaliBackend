@@ -262,14 +262,14 @@ namespace JoaliBackend.Controllers
 
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Name ?? ""),
-                new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.UserType.ToString()),
-                new Claim("StaffRole", user.StaffRole?.ToString() ?? "None")
-            };
+        new Claim("sub", user.Email),
+        new Claim("jti", Guid.NewGuid().ToString()),
+        new Claim("userId", user.Id.ToString()),
+        new Claim("name", user.Name ?? ""),
+        new Claim("email", user.Email),
+        new Claim("role", user.UserType.ToString()),
+        new Claim("staffRole", user.StaffRole?.ToString() ?? "None")
+    };
 
             var token = new JwtSecurityToken(
                 claims: claims,
@@ -286,6 +286,7 @@ namespace JoaliBackend.Controllers
                 ExpiresAt = token.ValidTo
             };
         }
+
 
         private string GenerateRefreshToken()
         {
