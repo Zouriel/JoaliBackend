@@ -2,9 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using JoaliBackend.Models; // adjust namespace
+using JoaliBackend.Models; 
 using Joali.Data;
-using JoaliBackend.DTOs; // adjust if DbContext is elsewhere
+using JoaliBackend.DTOs; 
 
 namespace JoaliBackend.Controllers
 {
@@ -24,8 +24,7 @@ namespace JoaliBackend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Organization>>> GetOrganizations([FromQuery] int? orgtype = null)
         {
-            if (!IsAdmin())
-                return Forbid("Only Admins can view organizations.");
+            
 
             if (orgtype.HasValue)
             {
@@ -77,7 +76,7 @@ namespace JoaliBackend.Controllers
                 Country = dto.Country,
                 LogoUrl = dto.LogoUrl,
                 Website = dto.Website,
-                Type = (OrgType)dto.orgType,
+                Type = dto.orgType,
                 CreatedAt = DateTime.UtcNow
             };
 
@@ -88,27 +87,29 @@ namespace JoaliBackend.Controllers
         }
 
 
-        // DELETE: api/Organization/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteOrganization(int id)
+        // POST: api/Organization/toggle/5
+        [HttpGet("toggle/{id}")]
+        public async Task<IActionResult> ToggleOrganization(int id)
         {
             if (!IsAdmin())
             {
-                return Forbid("Only Admins can delete organizations.");
+                return Forbid("Only Admins can toggle organization status.");
             }
 
             var organization = await _context.Organizations.FindAsync(id);
             if (organization == null)
             {
-                return NotFound();
+                return NotFound(new { message = "Organization not found." });
             }
 
-            organization.IsActive = false;
+            organization.IsActive = !organization.IsActive; // 🔄 Flip the switch
             _context.Organizations.Update(organization);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            var status = organization.IsActive ? "activated" : "deactivated";
+            return Ok(new { message = $"Organization has been {status}." });
         }
+
 
         private bool OrganizationExists(int id)
         {

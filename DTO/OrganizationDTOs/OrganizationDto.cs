@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using JoaliBackend.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace JoaliBackend.DTOs
 {
@@ -29,7 +30,7 @@ namespace JoaliBackend.DTOs
         [Url]
         public string Website { get; set; }
         
-        public int orgType { get; set; }
+        public OrgType orgType { get; set; }
 
 
     }

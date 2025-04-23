@@ -136,7 +136,7 @@ namespace JoaliBackend.Controllers
 
         }
         [Authorize]
-        [HttpPost("ToggleUser")]
+        [HttpGet("ToggleUser")]
         public async Task<IActionResult> ToggleUser([FromQuery] string APIkey, string Email)
         {
             try
