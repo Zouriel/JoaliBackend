@@ -57,7 +57,7 @@ namespace JoaliBackend.Controllers
                 var os = dd.GetOs().Match?.Name ?? "Unknown";
                 var client = dd.GetClient().Match?.Name ?? "Unknown";
 
-                if (!user.IsActive && user.UserType != UserType.Staff)
+                if (!user.IsActive && user.UserType == UserType.Staff)
                 {
                     var code = GenerateRandomDigits(23);
                     user.TemporaryKey = code;
