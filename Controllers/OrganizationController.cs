@@ -88,7 +88,7 @@ namespace JoaliBackend.Controllers
 
 
         // POST: api/Organization/toggle/5
-        [HttpGet("toggle/{id}")]
+        [HttpPut("toggle/{id}")]
         public async Task<IActionResult> ToggleOrganization(int id)
         {
             if (!IsAdmin())

@@ -20,6 +20,9 @@ namespace Joali.Data
         public DbSet<User> Users { get; set; }
         public DbSet<Session> Sessions { get; set; }
         public DbSet<Organization> Organizations { get; set; }
+        public DbSet<Service> Services { get; set; }
+        public DbSet<ServiceType> ServiceTypes { get; set; }
+        public DbSet<ServiceOrder> bookings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

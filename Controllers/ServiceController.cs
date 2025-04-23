@@ -1,0 +1,153 @@
+﻿using Joali.Data;
+using JoaliBackend.DTO.ServiceDTOs;
+using JoaliBackend.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace JoaliBackend.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ServiceController : ControllerBase
+    {
+        private readonly EFCoreDbContext _context;
+
+        public ServiceController(EFCoreDbContext context)
+        {
+            _context = context;
+        }
+
+        // 1️⃣ [ADMIN ONLY] Create a new service
+        [HttpPost("create")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CreateService([FromBody] NewServiceDTO dto)
+        {
+            try
+            {
+                var serviceType = await _context.ServiceTypes.FirstOrDefaultAsync(s => s.Id == dto.ServiceTypeId);
+                if (serviceType == null) return BadRequest(new { message = "Service type not found" });
+                var service = new Service
+                {
+                    Name = dto.Name,
+                    Description = dto.Description ?? "",
+                    Price = dto.Price,
+                    OrgId = dto.OrgId,
+                    ServiceType = serviceType,
+                    Capacity = dto.Capacity,
+                    CreatedAt = DateTime.UtcNow,
+                    DurationInMinutes = dto.DurationInMinutes,
+                    IsActive = true
+                };
+
+                await _context.Services.AddAsync(service);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Service created successfully", data = service });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Failed to create service", error = ex.Message });
+            }
+        }
+
+        // 2️⃣ [ADMIN ONLY] Toggle soft delete (IsActive)
+        [HttpPost("toggle/{id}")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ToggleServiceActive(int id)
+        {
+            try
+            {
+                var service = await _context.Services.FindAsync(id);
+                if (service == null)
+                    return NotFound(new { message = "Service not found" });
+
+                service.IsActive = !service.IsActive;
+                await _context.SaveChangesAsync();
+
+                var status = service.IsActive ? "activated" : "deactivated";
+                return Ok(new { message = $"Service {status} successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Failed to toggle service status", error = ex.Message });
+            }
+        }
+
+        // 3️⃣ [OPEN] Get all services with optional org/type filters
+        [HttpGet("all")]
+        [Authorize] // or [Authorize] if you want staff/customers only
+        public async Task<IActionResult> GetAllServices([FromQuery] int? orgId = null, [FromQuery] int? typeId = null)
+        {
+            try
+            {
+                var query = _context.Services
+                    .Include(s => s.OrgId)
+                    .Include(s => s.ServiceType)
+                    .AsQueryable();
+
+                if (orgId.HasValue)
+                    query = query.Where(s => s.OrgId == orgId.Value);
+
+                if (typeId.HasValue)
+                    query = query.Where(s => s.ServiceType.Id == typeId.Value);
+
+                var services = await query
+                    .Where(s => s.IsActive)
+                    .ToListAsync();
+
+                return Ok(services);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Failed to retrieve services", error = ex.Message });
+            }
+        }
+        // 4️⃣ [ADMIN ONLY] Create a new Service Type
+        [HttpPost("create-service-type")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CreateServiceType([FromBody] NewServiceTypeDTO dto)
+        {
+            try
+            {
+                var existing = await _context.ServiceTypes
+                    .FirstOrDefaultAsync(t => t.Name.ToLower() == dto.Name.ToLower());
+
+                if (existing != null)
+                    return BadRequest(new { message = "A service type with this name already exists." });
+
+                var newType = new ServiceType
+                {
+                    Name = dto.Name,
+                    Description = dto.Description
+                };
+
+                await _context.ServiceTypes.AddAsync(newType);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { message = "Service type created successfully", data = newType });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Failed to create service type", error = ex.Message });
+            }
+        }
+        // 5️⃣ [AUTHORIZED] Get all service types
+        [HttpGet("all-service-types")]
+        [Authorize]
+        public async Task<IActionResult> GetAllServiceTypes()
+        {
+            try
+            {
+                var types = await _context.ServiceTypes.ToListAsync();
+                return Ok(types);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Failed to retrieve service types", error = ex.Message });
+            }
+        }
+
+
+    }
+}
