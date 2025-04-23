@@ -243,6 +243,47 @@ namespace JoaliBackend.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+        [HttpGet("Refresh")]
+        public async Task<IActionResult> Refresh([FromBody] string refreshtoken)
+        {
+            try
+            {
+                var token = HttpContext.Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", "");
+                if (string.IsNullOrEmpty(token))
+                    return Unauthorized(new { message = "Missing or invalid token" });
+                var session = await _context.Sessions.FirstOrDefaultAsync(s => s.token == token);
+                if (session == null || session.ExpiresAt < DateTime.UtcNow)
+                {
+                    if (session != null)
+                    {
+                        _context.Sessions.Remove(session);
+                        await _context.SaveChangesAsync();
+                    }
+                    return Unauthorized(new { message = "Invalid or expired session" });    
+                }
+                if(session.RefreshToken != refreshtoken)
+                    return Unauthorized(new { message = "Invalid or expired session" });
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == session.userId);
+                if (user == null)
+                    return Unauthorized(new { message = "User not found" });
+                var tokens = GenerateToken(user);
+                var payload = new
+                {
+                    Access_token = tokens.AccessToken,
+                    Refresh_Token = tokens.RefreshToken,
+                };
+                session.token = tokens.AccessToken;
+                session.RefreshToken = tokens.RefreshToken;
+                session.ExpiresAt = tokens.ExpiresAt;
+                _context.Sessions.Update(session);
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "Token refreshed", New_token = payload });
+
+            }catch(Exception Ex)
+            {
+                return Unauthorized(new { message = Ex.Message });
+            }
+        }
 
         private string GenerateRandomDigits(int length)
         {
@@ -286,7 +327,7 @@ namespace JoaliBackend.Controllers
             {
                 AccessToken = accessToken,
                 RefreshToken = GenerateRefreshToken(),
-                ExpiresAt = token.ValidTo
+                ExpiresAt = DateTime.UtcNow.AddDays(1)
             };
         }
 
