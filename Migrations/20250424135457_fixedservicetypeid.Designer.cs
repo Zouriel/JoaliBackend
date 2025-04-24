@@ -4,6 +4,7 @@ using Joali.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JoaliBackend.Migrations
 {
     [DbContext(typeof(EFCoreDbContext))]
-    partial class EFCoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250424135457_fixedservicetypeid")]
+    partial class fixedservicetypeid
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -115,9 +118,6 @@ namespace JoaliBackend.Migrations
                     b.Property<int>("OrgId")
                         .HasColumnType("int");
 
-                    b.Property<int>("OrganizationId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Price")
                         .HasColumnType("int");
 
@@ -128,10 +128,6 @@ namespace JoaliBackend.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("OrganizationId");
-
-                    b.HasIndex("ServiceTypeId");
 
                     b.ToTable("Services");
                 });
@@ -153,9 +149,6 @@ namespace JoaliBackend.Migrations
                     b.Property<int>("OrgId")
                         .HasColumnType("int");
 
-                    b.Property<int>("OrganizationId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -173,11 +166,7 @@ namespace JoaliBackend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrganizationId");
-
-                    b.HasIndex("ServiceId");
-
-                    b.ToTable("ServiceOrders");
+                    b.ToTable("bookings");
                 });
 
             modelBuilder.Entity("JoaliBackend.Models.ServiceType", b =>
@@ -324,44 +313,6 @@ namespace JoaliBackend.Migrations
                         .HasForeignKey("ParentOrganizationId");
 
                     b.Navigation("ParentOrganization");
-                });
-
-            modelBuilder.Entity("JoaliBackend.Models.Service", b =>
-                {
-                    b.HasOne("JoaliBackend.Models.Organization", "Organization")
-                        .WithMany()
-                        .HasForeignKey("OrganizationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("JoaliBackend.Models.ServiceType", "ServiceType")
-                        .WithMany()
-                        .HasForeignKey("ServiceTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Organization");
-
-                    b.Navigation("ServiceType");
-                });
-
-            modelBuilder.Entity("JoaliBackend.Models.ServiceOrder", b =>
-                {
-                    b.HasOne("JoaliBackend.Models.Organization", "Organization")
-                        .WithMany()
-                        .HasForeignKey("OrganizationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("JoaliBackend.Models.Service", "Service")
-                        .WithMany()
-                        .HasForeignKey("ServiceId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Organization");
-
-                    b.Navigation("Service");
                 });
 
             modelBuilder.Entity("JoaliBackend.Models.Session", b =>

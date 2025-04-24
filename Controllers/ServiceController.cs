@@ -25,6 +25,8 @@ namespace JoaliBackend.Controllers
         {
             try
             {
+                var org = await _context.Organizations.FirstOrDefaultAsync(o => o.Id == dto.OrgId);
+                if (org == null) return BadRequest(new { message = "Organization not found" });
                 var serviceType = await _context.ServiceTypes.FirstOrDefaultAsync(s => s.Id == dto.ServiceTypeId);
                 if (serviceType == null) return BadRequest(new { message = "Service type not found" });
                 var service = new Service
@@ -33,10 +35,13 @@ namespace JoaliBackend.Controllers
                     Description = dto.Description ?? "",
                     Price = dto.Price,
                     OrgId = dto.OrgId,
+                    Organization = org,
+                    ServiceTypeId = dto.ServiceTypeId,
                     ServiceType = serviceType,
                     Capacity = dto.Capacity,
                     CreatedAt = DateTime.UtcNow,
                     DurationInMinutes = dto.DurationInMinutes,
+                    imageUrl = dto.imageUrl,
                     IsActive = true
                 };
 
@@ -76,13 +81,13 @@ namespace JoaliBackend.Controllers
 
         // 3️⃣ [OPEN] Get all services with optional org/type filters
         [HttpGet("all")]
-        [Authorize] // or [Authorize] if you want staff/customers only
+        [Authorize]
         public async Task<IActionResult> GetAllServices([FromQuery] int? orgId = null, [FromQuery] int? typeId = null)
         {
             try
             {
                 var query = _context.Services
-                    .Include(s => s.OrgId)
+                    .Include(s => s.Organization)
                     .Include(s => s.ServiceType)
                     .AsQueryable();
 
@@ -90,7 +95,7 @@ namespace JoaliBackend.Controllers
                     query = query.Where(s => s.OrgId == orgId.Value);
 
                 if (typeId.HasValue)
-                    query = query.Where(s => s.ServiceType.Id == typeId.Value);
+                    query = query.Where(s => s.ServiceTypeId == typeId.Value);
 
                 var services = await query
                     .Where(s => s.IsActive)
@@ -104,8 +109,8 @@ namespace JoaliBackend.Controllers
             }
         }
         // 4️⃣ [ADMIN ONLY] Create a new Service Type
-        [HttpPost("create-service-type")]
         [Authorize(Roles = "Admin")]
+        [HttpPost("create-service-type")]
         public async Task<IActionResult> CreateServiceType([FromBody] NewServiceTypeDTO dto)
         {
             try

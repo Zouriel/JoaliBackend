@@ -19,8 +19,7 @@ namespace JoaliBackend.Controllers
         {
             _context = context;
         }
-
-        // GET: api/Organization
+        // GET: api/Organizations
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Organization>>> GetOrganizations([FromQuery] int? orgtype = null)
         {
@@ -41,7 +40,7 @@ namespace JoaliBackend.Controllers
             return Ok(allOrgs);
         }
 
-
+        
         // GET: api/Organization/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Organization>> GetOrganization(int id)

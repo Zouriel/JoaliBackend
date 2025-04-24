@@ -73,7 +73,8 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["JWT:SecretKey"]))
+            Encoding.UTF8.GetBytes(builder.Configuration["JWT:SecretKey"])),
+        RoleClaimType = "staffRole"
     };
 });
 

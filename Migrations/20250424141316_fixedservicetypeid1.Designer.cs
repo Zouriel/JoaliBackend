@@ -4,6 +4,7 @@ using Joali.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace JoaliBackend.Migrations
 {
     [DbContext(typeof(EFCoreDbContext))]
-    partial class EFCoreDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250424141316_fixedservicetypeid1")]
+    partial class fixedservicetypeid1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -153,9 +156,6 @@ namespace JoaliBackend.Migrations
                     b.Property<int>("OrgId")
                         .HasColumnType("int");
 
-                    b.Property<int>("OrganizationId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -173,11 +173,7 @@ namespace JoaliBackend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrganizationId");
-
-                    b.HasIndex("ServiceId");
-
-                    b.ToTable("ServiceOrders");
+                    b.ToTable("bookings");
                 });
 
             modelBuilder.Entity("JoaliBackend.Models.ServiceType", b =>
@@ -343,25 +339,6 @@ namespace JoaliBackend.Migrations
                     b.Navigation("Organization");
 
                     b.Navigation("ServiceType");
-                });
-
-            modelBuilder.Entity("JoaliBackend.Models.ServiceOrder", b =>
-                {
-                    b.HasOne("JoaliBackend.Models.Organization", "Organization")
-                        .WithMany()
-                        .HasForeignKey("OrganizationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("JoaliBackend.Models.Service", "Service")
-                        .WithMany()
-                        .HasForeignKey("ServiceId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Organization");
-
-                    b.Navigation("Service");
                 });
 
             modelBuilder.Entity("JoaliBackend.Models.Session", b =>

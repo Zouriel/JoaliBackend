@@ -22,7 +22,7 @@ namespace Joali.Data
         public DbSet<Organization> Organizations { get; set; }
         public DbSet<Service> Services { get; set; }
         public DbSet<ServiceType> ServiceTypes { get; set; }
-        public DbSet<ServiceOrder> bookings { get; set; }
+        public DbSet<ServiceOrder> ServiceOrders { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -41,6 +41,11 @@ namespace Joali.Data
                 staffId = "ADM-001",
                 OrgId = null
             });
+            modelBuilder.Entity<ServiceOrder>()
+                        .HasOne(o => o.Service)
+                        .WithMany()
+                        .HasForeignKey(o => o.ServiceId)
+                        .OnDelete(DeleteBehavior.NoAction); // 🚫 prevents cascade
         }
 
         

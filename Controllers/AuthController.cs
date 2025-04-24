@@ -121,38 +121,7 @@ namespace JoaliBackend.Controllers
                 user.TemporaryKeyExpiresAt = null;
                 _context.Users.Update(user);
                 await _context.SaveChangesAsync();
-
-                var tokens = GenerateToken(user);
-                var httpContext = _httpContextAccessor.HttpContext;
-
-                var ip = httpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault()?.Split(',').FirstOrDefault()?.Trim()
-                         ?? httpContext.Connection.RemoteIpAddress?.ToString();
-
-                var userAgent = httpContext.Request.Headers["User-Agent"].FirstOrDefault() ?? "Unknown";
-                var dd = new DeviceDetector(userAgent);
-                dd.Parse();
-
-                var deviceType = dd.GetDeviceName() ?? "Unknown";
-                var os = dd.GetOs().Match?.Name ?? "Unknown";
-                var client = dd.GetClient().Match?.Name ?? "Unknown";
-
-                var newSession = new Session()
-                {
-                    token = tokens.AccessToken,
-                    userId = user.Id,
-                    CreatedAt = DateTime.UtcNow,
-                    ExpiresAt = tokens.ExpiresAt,
-                    RefreshToken = tokens.RefreshToken,
-                    IPAddress = ip ?? "unknown",
-                    Device = deviceType,
-                    Os = os,
-                    Client = client,
-                };
-
-                await _context.Sessions.AddAsync(newSession);
-                await _context.SaveChangesAsync();
-
-                return Ok(new { message = "Password reset successful", token = tokens });
+                return Ok(new { message = "Password reset successful"});
             }
             catch
             {
@@ -311,6 +280,7 @@ namespace JoaliBackend.Controllers
         new Claim("userId", user.Id.ToString()),
         new Claim("name", user.Name ?? ""),
         new Claim("email", user.Email),
+        new Claim("OrgId", user.OrgId.ToString() ?? ""),
         new Claim("role", user.UserType.ToString()),
         new Claim("staffRole", user.StaffRole?.ToString() ?? "None")
     };

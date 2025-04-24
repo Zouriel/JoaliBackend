@@ -6,14 +6,19 @@
         public string Name { get; set; }
         public string Description { get; set; }
         public int OrgId { get; set; }
+        public Organization Organization { get; set; }
+        public int ServiceTypeId { get; set; }
         public ServiceType ServiceType { get; set; }
         public int Price { get; set; }
         public int? DurationInMinutes { get; set; }
+        public string? imageUrl { get; set; }
         public DateTime CreatedAt { get; set; }
         public int? Capacity { get; set; }
         public bool IsActive { get; set; }
 
     }
+        
+        
     public class ServiceType
     {
         public int Id { get; set; }
@@ -25,8 +30,10 @@
     {
         public int Id { get; set; }
         public int ServiceId { get; set; }
+        public Service Service { get; set; }
         public int UserId { get; set; }
         public int OrgId { get; set; }
+        public Organization Organization { get; set; }
         public int Quantity { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? ScheduledFor { get; set; }
