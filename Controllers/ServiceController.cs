@@ -97,9 +97,7 @@ namespace JoaliBackend.Controllers
                 if (typeId.HasValue)
                     query = query.Where(s => s.ServiceTypeId == typeId.Value);
 
-                var services = await query
-                    .Where(s => s.IsActive)
-                    .ToListAsync();
+                var services = await query.ToListAsync();
 
                 return Ok(services);
             }
