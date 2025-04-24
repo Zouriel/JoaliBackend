@@ -151,6 +151,32 @@ namespace JoaliBackend.Controllers
             }
         }
 
+        //payment simulate endpoint (Temporary)
+        [HttpPost("Pay")]
+        [Authorize]
+        public async Task<IActionResult> Pay([FromBody] int serviceId)
+        {
+            try
+            {
+                var email = User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress")?.Value;
+                if (email == null) return Unauthorized(new { message = "User not found" });
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+                if (user == null) return BadRequest(new { message = "User not found" });
+                var serviceOrder = await _context.ServiceOrders.FirstOrDefaultAsync(s => s.Id == serviceId);
+                if (serviceOrder == null) return BadRequest(new { message = "Service not found" });
+                var IsValid = user.Id == serviceOrder.UserId;
+                if (!IsValid) return Unauthorized(new { message = "Invalid user" });
+                serviceOrder.Status = OrderStatus.Confirmed;
+                _context.ServiceOrders.Update(serviceOrder);
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "Payment successful" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Failed to make payment", error = ex.Message });
+            }
+        }
+
 
     }
 }
