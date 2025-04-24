@@ -74,8 +74,8 @@ namespace JoaliBackend.Controllers
                 if (!BCrypt.Net.BCrypt.Verify(data.Password, user.Password_hash))
                     return BadRequest(new { message = "Invalid password" });
 
-                var tokens = GenerateToken(user);
-
+                var tokens = await GenerateToken(user);
+                
                 var newSession = new Session()
                 {
                     token = tokens.AccessToken,
@@ -92,7 +92,7 @@ namespace JoaliBackend.Controllers
                 await _context.Sessions.AddAsync(newSession);
                 await _context.SaveChangesAsync();
 
-                return Ok(new { message = "Login successful", token = tokens });
+                return Ok(new { message = "Login successful", token = tokens});
             }
             catch
             {
@@ -174,7 +174,7 @@ namespace JoaliBackend.Controllers
                 if (user == null)
                     return NotFound(new { message = "User not found" });
 
-                var tokens = GenerateToken(user);
+                var tokens =await  GenerateToken(user);
 
                 session.token = tokens.AccessToken;
                 session.RefreshToken = tokens.RefreshToken;
@@ -235,7 +235,7 @@ namespace JoaliBackend.Controllers
                 var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == session.userId);
                 if (user == null)
                     return Unauthorized(new { message = "User not found" });
-                var tokens = GenerateToken(user);
+                var tokens = await GenerateToken(user);
                 var payload = new
                 {
                     Access_token = tokens.AccessToken,
@@ -267,23 +267,30 @@ namespace JoaliBackend.Controllers
             return new string(digits);
         }
 
-        private SecData GenerateToken(User user)
+        private async Task<SecData> GenerateToken(User user)
         {
             var secretKey = _configuration["JWT:SecretKey"];
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
+            var Booking = await _context.ServiceOrders.Where(b => b.UserId == user.Id).ToListAsync();
+            Booking = Booking.Where(b => b.Status == OrderStatus.Confirmed).ToList();
+            bool HasBooking = false;
+            if (Booking.Any())
+                HasBooking = true;
+            else
+                HasBooking = false;
             var claims = new[]
             {
-        new Claim("sub", user.Email),
-        new Claim("jti", Guid.NewGuid().ToString()),
-        new Claim("userId", user.Id.ToString()),
-        new Claim("name", user.Name ?? ""),
-        new Claim("email", user.Email),
-        new Claim("OrgId", user.OrgId.ToString() ?? ""),
-        new Claim("role", user.UserType.ToString()),
-        new Claim("staffRole", user.StaffRole?.ToString() ?? "None")
-    };
+                new Claim("sub", user.Email),
+                new Claim("jti", Guid.NewGuid().ToString()),
+                new Claim("userId", user.Id.ToString()),
+                new Claim("name", user.Name ?? ""),
+                new Claim("email", user.Email),
+                new Claim("OrgId", user.OrgId.ToString() ?? ""),
+                new Claim("role", user.UserType.ToString()),
+                new Claim("staffRole", user.StaffRole?.ToString() ?? "None"),
+                new Claim("hasBooking", HasBooking.ToString())
+            };
 
             var token = new JwtSecurityToken(
                 claims: claims,
