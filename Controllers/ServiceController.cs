@@ -20,7 +20,7 @@ namespace JoaliBackend.Controllers
 
         // 1️⃣ [ADMIN ONLY] Create a new service
         [HttpPost("create")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "staff,Admin")]
         public async Task<IActionResult> CreateService([FromBody] NewServiceDTO dto)
         {
             try
