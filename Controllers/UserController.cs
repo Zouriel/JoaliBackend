@@ -88,7 +88,7 @@ namespace JoaliBackend.Controllers
             }
             
         }
-
+        [Authorize(Roles = "Admin,Manager")]
         [HttpPost("NewStaff")]
         public async Task<IActionResult> AddNewStaffAsync([FromBody] NewStaffDTO NewStaff, [FromQuery] string APIKey)
         {
@@ -135,7 +135,7 @@ namespace JoaliBackend.Controllers
             }
 
         }
-        [Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpPut("ToggleUser")]
         public async Task<IActionResult> ToggleUser([FromQuery] string APIkey, string Email)
         {
@@ -185,6 +185,24 @@ namespace JoaliBackend.Controllers
                 Name = user.Identity.Name,
                 Claims = claims
             });
+        }
+        [HttpGet("SetStaffRole")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> SetStaffRole([FromQuery] string APIKey, [FromQuery] string Email, [FromQuery] StaffRole Role)
+        {
+            try
+            {
+                var APIKEY = _configuration["API-KEY"];
+                if (APIKey != APIKEY) return BadRequest(new { message = "Invalid API Key" });
+                var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == Email);
+                if (user == null) return BadRequest(new { message = "User not found" });
+                user.StaffRole = Role;
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "Staff role set successfully", data = user });
+            }catch(Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
 

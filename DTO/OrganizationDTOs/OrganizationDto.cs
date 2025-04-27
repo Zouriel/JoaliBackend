@@ -31,6 +31,9 @@ namespace JoaliBackend.DTOs
         public string Website { get; set; }
         
         public OrgType orgType { get; set; }
+        [Required]
+        [EmailAddress(ErrorMessage = "Invalid email address")]
+        public string InitialManager { get; set; } 
 
 
     }

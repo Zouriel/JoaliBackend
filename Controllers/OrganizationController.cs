@@ -58,13 +58,15 @@ namespace JoaliBackend.Controllers
         // The property in OrganizationDto is named `orgType`, not `Type`.
 
         [HttpPost("Create")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Organization>> CreateOrganization([FromBody] OrganizationDto dto)
         {
             if (!IsAdmin())
             {
                 return Forbid("Only Admins can create organizations.");
             }
-
+            var initiman = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.InitialManager);
+            if (initiman == null) return BadRequest(new { message = "Initial manager not found." });
             var organization = new Organization
             {
                 Name = dto.Name,
@@ -78,8 +80,14 @@ namespace JoaliBackend.Controllers
                 Type = dto.orgType,
                 CreatedAt = DateTime.UtcNow
             };
+            
+
 
             _context.Organizations.Add(organization);
+            await _context.SaveChangesAsync();
+            initiman.OrgId = organization.Id;
+            initiman.StaffRole = StaffRole.Manager;
+            _context.Users.Update(initiman);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetOrganization), new { id = organization.Id }, organization);
@@ -88,6 +96,7 @@ namespace JoaliBackend.Controllers
 
         // POST: api/Organization/toggle/5
         [HttpPut("toggle/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ToggleOrganization(int id)
         {
             if (!IsAdmin())

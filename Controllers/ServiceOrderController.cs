@@ -92,7 +92,7 @@ namespace JoaliBackend.Controllers
 
         // 3️⃣ Admin: View All Orders with Filters
         [HttpGet("all")]
-        [Authorize(Roles = "Admin,Staff")]
+        [Authorize(Roles = "Admin,Staff,Manager")]
         public async Task<IActionResult> GetAllOrders(
             [FromQuery] int? orgId,
             [FromQuery] OrderStatus? status,
@@ -130,7 +130,7 @@ namespace JoaliBackend.Controllers
 
         // 4️⃣ Admin: Update Order Status
         [HttpPut("update-status/{id}")]
-        [Authorize(Roles = "Admin,Staff")]
+        [Authorize(Roles = "Admin,Staff,Manager")]
         public async Task<IActionResult> UpdateOrderStatus(int id, [FromQuery] OrderStatus status)
         {
             try

@@ -20,7 +20,7 @@ namespace JoaliBackend.Controllers
 
         // 1️⃣ [ADMIN ONLY] Create a new service
         [HttpPost("create")]
-        [Authorize(Roles = "Admin,Staff")]
+        [Authorize(Roles = "Manager,Admin")]
         public async Task<IActionResult> CreateService([FromBody] NewServiceDTO dto)
         {
             try
@@ -58,7 +58,7 @@ namespace JoaliBackend.Controllers
 
         // 2️⃣ [ADMIN ONLY] Toggle soft delete (IsActive)
         [HttpPost("toggle/{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> ToggleServiceActive(int id)
         {
             try
@@ -107,7 +107,7 @@ namespace JoaliBackend.Controllers
             }
         }
         // 4️⃣ [ADMIN ONLY] Create a new Service Type
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Manager")]
         [HttpPost("create-service-type")]
         public async Task<IActionResult> CreateServiceType([FromBody] NewServiceTypeDTO dto)
         {
