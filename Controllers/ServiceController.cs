@@ -68,6 +68,7 @@ namespace JoaliBackend.Controllers
                     return NotFound(new { message = "Service not found" });
 
                 service.IsActive = !service.IsActive;
+                _context.Services.Update(service);
                 await _context.SaveChangesAsync();
 
                 var status = service.IsActive ? "activated" : "deactivated";

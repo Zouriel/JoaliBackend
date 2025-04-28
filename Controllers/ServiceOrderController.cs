@@ -141,6 +141,7 @@ namespace JoaliBackend.Controllers
                 if (IsAdmin(order.OrgId)) return Unauthorized(new { message = "You are not authorized to update this order." });
 
                 order.Status = status;
+                _context.ServiceOrders.Update(order);
                 await _context.SaveChangesAsync();
 
                 return Ok(new { message = "Order status updated successfully", data = order });
