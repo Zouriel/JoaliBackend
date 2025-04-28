@@ -120,6 +120,7 @@ namespace JoaliBackend.Controllers
                     Password_hash = PasswordHash,
                     IsActive = false,
                     UserType = UserType.Staff,
+                    StaffRole = StaffRole.Staff,
                     PhoneNumber = NewStaff.PhoneNumber,
                     CreatedAt = DateTime.Now,
                     staffId = newstaffid,
