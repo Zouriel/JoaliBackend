@@ -82,7 +82,7 @@ namespace JoaliBackend.Controllers
 
         // 3️⃣ [OPEN] Get all services with optional org/type filters
         [HttpGet("all")]
-        [Authorize]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAllServices([FromQuery] int? orgId = null, [FromQuery] int? typeId = null)
         {
             try
